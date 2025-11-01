@@ -1,0 +1,575 @@
+{
+	"info": {
+		"_postman_id": "campus-backend-api-v2",
+		"name": "Campus Leave & Attendance Management System",
+		"description": "Complete API collection for the Campus Management System with all endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": {
+			"major": 2,
+			"minor": 0,
+			"patch": 0
+		}
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@student.edu\",\n  \"password\": \"password123\",\n  \"role\": \"student\",\n  \"dept\": \"Computer Science\",\n  \"hostel\": \"Hostel A\",\n  \"phone\": \"+1234567890\",\n  \"student_id\": \"CS2024001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@student.edu\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👤 User Management",
+			"item": [
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "me"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📝 Leave Management",
+			"item": [
+				{
+					"name": "Apply for Leave",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"leave_type\": \"medical\",\n  \"reason\": \"High fever and rest required\",\n  \"start_date\": \"2025-10-22T00:00:00Z\",\n  \"end_date\": \"2025-10-24T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/leaves/apply",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "leaves", "apply"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Leave Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/leaves/?status=pending&page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "leaves", ""],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leave Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/leaves/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "leaves", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Leave Request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"approve\",\n  \"remarks\": \"Approved by faculty\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/leaves/1/approve",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "leaves", "1", "approve"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Leave Request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"reject\",\n  \"remarks\": \"Insufficient documentation\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/leaves/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "leaves", "1", "reject"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 Attendance Management",
+			"item": [
+				{
+					"name": "Mark Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 1,\n  \"date\": \"2025-10-20T00:00:00Z\",\n  \"present\": true,\n  \"subject\": \"Data Structures\",\n  \"period\": \"1st Period\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/attendance/mark",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "attendance", "mark"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Attendance Records",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/attendance/?student_id=1&start_date=2025-10-01&end_date=2025-10-31",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "attendance", ""],
+							"query": [
+								{
+									"key": "student_id",
+									"value": "1"
+								},
+								{
+									"key": "start_date",
+									"value": "2025-10-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-10-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attendance Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/attendance/stats?student_id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "attendance", "stats"],
+							"query": [
+								{
+									"key": "student_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Department Attendance Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/attendance/department?department=Computer Science",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "attendance", "department"],
+							"query": [
+								{
+									"key": "department",
+									"value": "Computer Science"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📈 Analytics (Admin Only)",
+			"item": [
+				{
+					"name": "Get Dashboard Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/analytics/summary",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "analytics", "summary"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leave Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/analytics/leaves",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "analytics", "leaves"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attendance Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/analytics/attendance",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "analytics", "attendance"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔔 Notifications",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/?limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notifications", ""],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/unread-count",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notifications", "unread-count"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/1/read",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notifications", "1", "read"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/read-all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "notifications", "read-all"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏠 Dashboards",
+			"item": [
+				{
+					"name": "Admin Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "dashboard"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Faculty Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/faculty/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "faculty", "dashboard"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warden Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/warden/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "warden", "dashboard"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📚 Documentation",
+			"item": [
+				{
+					"name": "Swagger UI",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/swagger/index.html",
+							"host": ["{{base_url}}"],
+							"path": ["swagger", "index.html"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
