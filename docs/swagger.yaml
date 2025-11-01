@@ -1,0 +1,393 @@
+basePath: /api/v1
+definitions:
+  attendance.MarkAttendanceRequest:
+    properties:
+      date:
+        type: string
+      period:
+        maxLength: 20
+        type: string
+      present:
+        type: boolean
+      student_id:
+        type: integer
+      subject:
+        maxLength: 50
+        type: string
+    required:
+    - date
+    - present
+    - student_id
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.RegisterRequest:
+    properties:
+      dept:
+        type: string
+      email:
+        type: string
+      hostel:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      role:
+        enum:
+        - admin
+        - student
+        - faculty
+        - warden
+        type: string
+      student_id:
+        type: string
+    required:
+    - dept
+    - email
+    - name
+    - password
+    - role
+    type: object
+  leaves.ApplyLeaveRequest:
+    properties:
+      end_date:
+        type: string
+      leave_type:
+        enum:
+        - medical
+        - personal
+        - emergency
+        - academic
+        type: string
+      reason:
+        maxLength: 500
+        minLength: 10
+        type: string
+      start_date:
+        type: string
+    required:
+    - end_date
+    - leave_type
+    - reason
+    - start_date
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@campus.edu
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A comprehensive backend system for campus leave and attendance management
+    with role-based access control
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Campus Leave & Attendance Management System API
+  version: "1.0"
+paths:
+  /attendance/mark:
+    post:
+      consumes:
+      - application/json
+      description: Faculty marks attendance for a student
+      parameters:
+      - description: Attendance data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/attendance.MarkAttendanceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Attendance marked successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation failed or attendance already marked
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Student not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark student attendance
+      tags:
+      - Attendance
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation failed
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User login
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the system
+      parameters:
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation failed
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Email already registered
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /leaves/:
+    get:
+      consumes:
+      - application/json
+      description: Get list of leave requests based on user role
+      parameters:
+      - description: Filter by status (pending, approved, rejected)
+        in: query
+        name: status
+        type: string
+      - description: Filter by leave type
+        in: query
+        name: leave_type
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of leave requests
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List leave requests
+      tags:
+      - Leaves
+  /leaves/apply:
+    post:
+      consumes:
+      - application/json
+      description: Student applies for leave with validation
+      parameters:
+      - description: Leave application data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/leaves.ApplyLeaveRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Leave request submitted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation failed or overlapping leave
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Apply for leave
+      tags:
+      - Leaves
+  /users/:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all users (Admin only)
+      parameters:
+      - description: Filter by role
+        in: query
+        name: role
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - Users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the profile of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
